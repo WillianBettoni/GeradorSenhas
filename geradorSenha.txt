@@ -1,0 +1,201 @@
+#-----------------------#
+# GERENCIADOR DE SENHAS #
+#-----------------------#
+
+import os
+from random import choice
+import time
+import msvcrt
+
+A=7
+B=10
+C=13
+D=15
+FA=[]
+FB=[]
+FC=[]
+FD=[]
+fila=[]
+caracteres = "0123456789abcdefghijklmnopqrstuwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+tamanhoSenha=5
+automatico= False
+emAtendimento=False
+senha=""
+inp=None
+tempoAtend=0
+
+def limparTela():
+	os.system('cls')
+
+def atendimento():
+	global tempoAtend, emAtendimento
+	emAtendimento=True
+	limparTela()
+	filaDeAtendimento()
+	if(fila==[]):
+		print("Não existe cliente na fila!")
+		input()
+		menu()
+	print("\n")
+	print("--------- atendimento ---------")
+	print("Senha: "+fila[0][3])
+	print("Cliente: "+fila[0][0])
+	print("Prioridade: "+fila[0][1])
+	tempoAtend = fila[0][2]
+	print("Tempo de atendimento: "+format(tempoAtend)+" s.")
+	print("-------------------------------")
+	if(automatico==False):
+		print("(Digite 'c' para sair do atendimento)")
+		status=input("Atendimento concluido? [s]: ")
+		if(status=="s" or status=="S"):
+			fila.pop(0)
+			if(fila!=[]):
+				atendimento()
+		elif(status=="c" or status=="C"):
+			menu()
+		else:
+			atendimento()
+	if(automatico==True):
+		atendAuto()
+
+def atendAuto():
+	global tempoAtend
+	limparTela()
+	filaDeAtendimento()
+	print("\n")
+	print("--------- atendimento ---------")
+	print("Senha: "+fila[0][3])
+	print("Cliente: "+fila[0][0])
+	print("Prioridade: "+fila[0][1])
+	tempoAtend = fila[0][2]
+	print("Tempo de atendimento: "+format(tempoAtend)+" s.")
+	print("-------------------------------")
+	print("\n")
+	print("-------------------------------")
+	print("Atendimento automatico")
+	print("-------------------------------")
+	cont=1
+	while(cont<=tempoAtend):
+		print("\nTempo de atendimento: "+ format(cont)+" s", end="\r")
+		time.sleep(1)
+		cont+=1
+		if(msvcrt.kbhit()):
+			inp = msvcrt.getch()
+			print("Tempo de atendimento: "+ format(tempoAtend)+" s", end="\n")
+			ac = input("Digite o comando do menu acima [enter para voltar]:")
+			if(ac=="P" or ac=="p"):
+				fila.pop(0)
+				if(fila==[]):
+					limparListas()
+					menu()
+				atendAuto()
+	fila.pop(0)
+	if(fila!=[]):
+		atendAuto()
+
+def atualizarFila():
+	global fila
+	fila=[]
+	for i in FA:
+		fila.append(i)
+	for i in FB:
+		fila.append(i)
+	for i in FC:
+		fila.append(i)
+	for i in FD:
+		fila.append(i)
+
+def gerarSenha():
+	global senha
+	senha=""
+	for i in range(tamanhoSenha):
+		senha+=choice(caracteres)
+	return senha
+
+def entrada():
+    nome=input("Nome: ")
+    prioridade=input("Prioridade [A - B- C - D]: ")
+    senha=gerarSenha()
+    if(prioridade=="A" or prioridade=="a"):
+    	FA.append([nome,prioridade,A,senha])
+    elif(prioridade=="B" or prioridade=="b"):
+    	FB.append([nome,prioridade,B,senha])
+    elif(prioridade=="C" or prioridade=="c"):
+    	FC.append([nome,prioridade,C,senha])
+    elif(prioridade=="D" or prioridade=="d"):
+    	FD.append([nome,prioridade,D,senha])
+    else:
+    	print("Erro: Esta prioridade não existe! Por favor, escolha outra opção.")
+    	input()
+    	menu()
+    atualizarFila()
+
+def config():
+	global automatico
+	limparTela();
+	if(automatico==True):
+		print("Modo de funcionamento: automatico")
+	else:
+		print("Modo de funcionamento: manual")
+	esc=input("Deseja alterar? [s/n]: ")
+	if(esc=="s" or esc=="S"):
+		if(automatico==True):
+			automatico=False
+		else:
+			automatico=True
+		config()
+
+def filaDeAtendimento():
+	global emAtendimento
+	print("\n----- Fila de Atendimento -----")
+	if(len(fila)==0):
+		print("Nenhum cliente a ser atendido...")
+	else:
+		print(" Senhas ")
+	for i in fila[::-1]:
+		if(fila.index(i)==1 and emAtendimento==True):
+			print("["+i[1]+"]: "+i[0]+" --> Senha: "+i[3]+" <-- Próximo a ser atendido!")
+		else:
+			print("["+i[1]+"]: "+i[0]+" --> Senha: "+i[3])
+	print("-------------------------------")
+
+def limparListas():
+	global FA, FB, FC, FD, fila
+	if(FA!=[]):
+		FA=[]
+	if(FB!=[]):
+		FB=[]
+	if(FC!=[]):
+		FC=[]
+	if(FD!=[]):
+		FD=[]
+	if(fila!=[]):
+		fila=[]
+
+
+def menu():
+	op=0
+	while(op!=4):
+		limparTela()
+		filaDeAtendimento()
+		print("\n\n----------- Opções ------------")
+		print("1 - Entrada de cliente.")
+		print("2 - Atendimento.")
+		print("3 - Configurações")
+		print("4 - Sair")
+		print("-------------------------------")
+		op = int(input("Opção: "))
+		if(op==1):
+			entrada()
+		elif(op==2):
+			atendimento()
+			limparListas()
+		elif(op==3):
+			config()
+		elif(op==4):
+			print("Programa finalizado")
+		else:
+			print("Erro: Opção não existe.")
+			input()
+# Principal
+menu()
